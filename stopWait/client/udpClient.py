@@ -33,10 +33,11 @@ end = True
 
 fileName, serverAddrPort = clientSocket.recvfrom(2048)
 path = (os.getcwd() +'/'+ requestFile)
-out_file = open(path, "wb+") #[w]rite as [b]inary
-out_file.write(fileName)
-out_file.close()
-# framedSend(sock, payload, 1)
+in_file = open(path, "wb+") #[w]rite as [b]inary
+in_file.write(fileName)
+in_file.close()
+
+clientSocket.sendto(reply.encode(), serverAddr)
 
 # while not end: #add condition
 #      modifiedMessage, serverAddrPort = clientSocket.recvfrom(2048)
