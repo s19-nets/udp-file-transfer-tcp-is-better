@@ -45,17 +45,19 @@ while 1:
         os.chdir(directory)
         print(file.decode())
         foundFile = open(file.decode(), "r") #open file to read
-        data = foundFile.read(100).replace('\n', ' ')
-        # content = foundFile.read(100) #get 100 bytes at a time
+        foundFile.seek(0,1)
+        data = foundFile.read(100)#.replace('\n', ' ')
         serverSocket.sendto(data.encode(), clientAddrPort)
         while not acknowledged:
             try:
                 ACK, address = serverSocket.recvfrom(1024)
                 acknowledged = True
                 print("Acknowledge")
+                foundFile.seek(0,1)
+                data = foundFile.read(100)#.replace('\n', ' ')
+                serverSocket.sendto(data.encode(), clientAddrPort)
+                acknowledged = False
             except socket.timeout:
                 msg = "Connection lost"
                 serversocket.sendto(msg.encode(), clientAddrPort)
         pass
-    # modifiedMessage = message.upper()
-    # serverSocket.sendto(modifiedMessage, clientAddrPort)

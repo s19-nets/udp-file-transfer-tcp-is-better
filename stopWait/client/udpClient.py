@@ -34,11 +34,20 @@ end = True
 fileName, serverAddrPort = clientSocket.recvfrom(2048)
 path = (os.getcwd() +'/'+ requestFile)
 in_file = open(path, "wb+") #[w]rite as [b]inary
+print(fileName.decode() + "1")
 in_file.write(fileName)
-in_file.close()
 
 clientSocket.sendto(reply.encode(), serverAddr)
+fileName, serverAddrPort = clientSocket.recvfrom(2048)
+print(fileName.decode() + "2")
+in_file.write(fileName)
+# in_file.close()
 
+clientSocket.sendto(reply.encode(), serverAddr)
+fileName, serverAddrPort = clientSocket.recvfrom(2048)
+print(fileName.decode() + "3")
+in_file.write(fileName)
+in_file.close()
 # while not end: #add condition
 #      modifiedMessage, serverAddrPort = clientSocket.recvfrom(2048)
 #      print(modifiedMessage.decode())
