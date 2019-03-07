@@ -28,36 +28,40 @@ serverSocket = socket(AF_INET, SOCK_DGRAM)
 serverSocket.bind(serverAddr)
 print("Ready to work!")
 directory = (os.getcwd() + '/serverfiles')
-segment = {}
-serverSocket.settimeout(10)
 acknowledged = False
+serverSocket.settimeout(10)
 
 while 1:
-    file, clientAddrPort = serverSocket.recvfrom(2048)
-    print("from %s: rec'd '%s'" % (repr(clientAddrPort), file)) #debug tool
-    print("Looking for file...")
-    if not os.path.exists(("%s/%s")%(directory, file.decode())):
-        errorMessage = "File not found"
-        serverSocket.sendto(errorMessage.encode(), clientAddrPort)
-        print(errorMessage)
+    try:
+        file, clientAddrPort = serverSocket.recvfrom(2048)
+        print("from %s: rec'd '%s'" % (repr(clientAddrPort), file)) #debug tool
+        print("Looking for file...")
+        if not os.path.exists(("%s/%s")%(directory, file.decode())):
+            errorMessage = "File not found"
+            serverSocket.sendto(errorMessage.encode(), clientAddrPort)
+            print(errorMessage)
+            pass
+        else:
+            os.chdir(directory)
+            print(file.decode())
+            foundFile = open(file.decode(), "r") #open file to read
+            data = foundFile.read(100)#
+            serverSocket.sendto(data.encode(), clientAddrPort)
+            while not acknowledged:
+                try:
+                    ACK, address = serverSocket.recvfrom(1024)
+                    acknowledged = True
+                    print("Client Acknowledged")
+                    foundFile.seek(0,1)
+                    data = foundFile.read(100)
+                    serverSocket.sendto(data.encode(), clientAddrPort)
+                    acknowledged = False
+                except socket.timeout:
+                    print("Timeout occur, Connection lost")
+                    pass
         pass
-    else:
-        os.chdir(directory)
-        print(file.decode())
-        foundFile = open(file.decode(), "r") #open file to read
-        foundFile.seek(0,1)
-        data = foundFile.read(100)#.replace('\n', ' ')
-        serverSocket.sendto(data.encode(), clientAddrPort)
-        while not acknowledged:
-            try:
-                ACK, address = serverSocket.recvfrom(1024)
-                acknowledged = True
-                print("Acknowledge")
-                foundFile.seek(0,1)
-                data = foundFile.read(100)#.replace('\n', ' ')
-                serverSocket.sendto(data.encode(), clientAddrPort)
-                acknowledged = False
-            except socket.timeout:
-                msg = "Connection lost"
-                serversocket.sendto(msg.encode(), clientAddrPort)
-        pass
+    except Exception as e:
+        print("Timeout occur, Connection lost")
+        # msg = "Connection lost"
+        # serversocket.sendto(msg.encode(), clientAddrPort)
+        raise

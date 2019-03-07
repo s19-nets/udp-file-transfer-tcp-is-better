@@ -29,7 +29,7 @@ clientSocket = socket(AF_INET, SOCK_DGRAM)
 requestFile = input("File to get from server:")
 clientSocket.sendto(requestFile.encode(), serverAddr)
 reply = "ACK"
-end = True
+end = False
 
 fileName, serverAddrPort = clientSocket.recvfrom(2048)
 path = (os.getcwd() +'/'+ requestFile)
